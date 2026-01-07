@@ -1,0 +1,15 @@
+[project]
+name = "todo-app"
+version = "0.1.0"
+description = "Phase I In-Memory Console Todo App"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["todo_app*"]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"

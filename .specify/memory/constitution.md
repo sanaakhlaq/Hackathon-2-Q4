@@ -1,55 +1,125 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: N/A (initial version) → 1.0.0
+- List of modified principles:
+  - Added "Correctness First" principle
+  - Added "Incremental Evolution" principle
+  - Added "Simplicity Before Abstraction" principle
+  - Added "Clear Separation of Concerns" principle
+  - Added "Production-Readiness Mindset" principle
+  - Added "AI Safety and Determinism" principle
+- Added sections: Phase Standards, Quality Standards
+- Removed sections: None
+- Templates requiring updates:
+  - ✅ `.specify/templates/plan-template.md` - Constitution Check section will reference new principles
+  - ✅ `.specify/templates/spec-template.md` - No direct changes needed
+  - ✅ `.specify/templates/tasks-template.md` - No direct changes needed
+- Follow-up TODOs:
+  - [ ] `TODO(RATIFICATION_DATE): Initial adoption date unknown` - needs to be filled in with actual ratification date
+-->
+
+# Multi-Phase AI-Native Todo Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Correctness First
+Functionality must work as specified in each phase, ensuring correctness is the primary concern throughout development.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Incremental Evolution
+Each phase builds cleanly on the previous one, maintaining functional, testable, and extensible code throughout the evolution.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Simplicity Before Abstraction
+Prioritize simple solutions over complex abstractions, following YAGNI principles and implementing only what is needed.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Clear Separation of Concerns
+Maintain clear separation of concerns between UI, logic, data, and AI components to ensure maintainable and understandable architecture.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Production-Readiness Mindset
+Adopt production-readiness mindset from Phase II onward, ensuring code quality, security, and operational readiness.
 
-### [PRINCIPLE_6_NAME]
+### AI Safety and Determinism
+Ensure AI-powered features are safe, deterministic, explainable, and grounded in system state with no hallucinated state changes.
 
+## Phase Standards
 
-[PRINCIPLE__DESCRIPTION]
+Phase I – In-Memory Console Application
+- Language: Python
+- Interface: Console-based
+- Data storage: In-memory only (no files, no database)
+- Features:
+  - Create, read, update, delete todos
+  - Clear user prompts and error handling
+- Code must be:
+  - Simple
+  - Modular
+  - Beginner-readable
+- No external dependencies beyond standard library
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Phase II – Full-Stack Web Application
+- Frontend: Next.js
+- Backend: FastAPI
+- ORM: SQLModel
+- Database: Neon (PostgreSQL)
+- Requirements:
+  - RESTful API design
+  - Persistent data storage
+  - Proper request validation
+  - Environment-based configuration
+  - Clear API contracts between frontend and backend
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Phase III – AI-Powered Todo Chatbot
+- AI Stack:
+  - OpenAI ChatKit
+  - OpenAI Agents SDK
+  - Official MCP SDK
+- Requirements:
+  - Chatbot assists with todo management
+  - AI actions must map to explicit backend operations
+  - No hallucinated state changes
+  - AI must not modify data without explicit user intent
+- AI responses must be:
+  - Deterministic where possible
+  - Explainable
+  - Grounded in system state
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Phase IV – Local Kubernetes Deployment
+- Tools:
+  - Docker
+  - Minikube
+  - Helm
+  - kubectl-ai
+  - kagent
+- Requirements:
+  - Each service containerized
+  - Helm charts for deployment
+  - Local cluster fully reproducible
+  - Clear service boundaries
+- No cloud dependency at this stage
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Phase V – Advanced Cloud Deployment
+- Infrastructure:
+  - DigitalOcean DOKS
+  - Kafka
+  - Dapr
+- Requirements:
+  - Event-driven architecture
+  - Service-to-service communication via Dapr
+  - Kafka for async task processing
+  - Scalability and fault tolerance
+- Production-grade configuration and security practices
+
+## Quality Standards
+
+- Code clarity over cleverness
+- Reproducibility of setup, execution, and deployment
+- AI safety and determinism in AI-powered features
+- Clear separation of concerns (UI, logic, data, AI)
+- Production-readiness mindset from Phase II onward
+- Incremental evolution: each phase builds cleanly on the previous one
+- Correctness first: functionality must work as specified in each phase
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All development must follow the incremental phase approach, with each phase remaining functional, testable, and extensible. Changes to core principles require explicit documentation of rationale and impact on existing phases. Code reviews must verify compliance with phase standards and quality requirements. The constitution supersedes all other development practices and serves as the authoritative guide for project decisions.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Initial adoption date unknown | **Last Amended**: 2026-01-05
