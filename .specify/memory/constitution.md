@@ -108,6 +108,38 @@ Phase V – Advanced Cloud Deployment
   - Scalability and fault tolerance
 - Production-grade configuration and security practices
 
+## Agent Skills Registry
+
+### Level 4 Expert Agents
+
+#### 1. Database Skill
+Expertise in Neon PostgreSQL, SQLAlchemy models, and schema migrations.
+- Optimized for Neon Serverless PostgreSQL with proper indexing and relationships
+- Connection pooling with QueuePool and Neon-optimized settings
+- ACID compliance and transaction management
+- Schema evolution and migration strategies
+
+#### 2. Auth Skill
+Deep knowledge of JWT (HS256), Bcrypt hashing, and OAuth2 security flow.
+- Secure user flows with validated email and password requirements
+- Password hashing using bcrypt with proper salt generation
+- JWT token generation with expiration and security best practices
+- OAuth2 security flow implementation
+
+#### 3. Backend Skill
+Expert level FastAPI routing, Pydantic validation, and CORSMiddleware.
+- REST API design with proper request/response validation
+- FastAPI routing with dependency injection and security schemes
+- Pydantic model validation for all request/response objects
+- CORSMiddleware configuration for frontend integration
+
+#### 4. Frontend Skill
+Professional Next.js (App Router), Tailwind CSS styling, and Axios/Fetch API integration.
+- Next.js App Router with modern component architecture
+- Tailwind CSS responsive styling with modern UI patterns
+- Secure API integration with JWT token management
+- Client-side validation and form handling
+
 ## Quality Standards
 
 - Code clarity over cleverness
