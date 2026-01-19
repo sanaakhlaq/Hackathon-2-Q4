@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-# --- Path Fix (Hugging Face ke liye) ---
+# --- Path Fix ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.append(current_dir)
@@ -90,7 +90,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         token = credentials.credentials
         payload = verify_token(token)
         email = payload.get("sub")
-        # Ye function dictionary wapas kar raha hai
         user = get_user_by_email(email)
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
@@ -122,28 +121,6 @@ def login(user_data: UserLoginRequest):
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-# --- Todo Routes (FIXED: dictionary indexing used) ---
-
-@app.get("/todos", response_model=List[TodoResponse])
-def get_todos(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    # Dictionary access: current_user["id"]
-    return db.query(Todo).filter(Todo.user_id == current_user["id"]).all()
-
-@app.post("/todos", response_model=TodoResponse)
-def create_todo(todo: TodoCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    # Dictionary access: current_user["id"]
-    new_todo = Todo(
-        title=todo.title,
-        description=todo.description,
-        priority=todo.priority,
-        user_id=current_user["id"],
-        completed=False
-    )
-    db.add(new_todo)
-    db.commit()
-    db.refresh(new_todo)
-    return new_todo
-
 @app.get("/me", response_model=UserResponse)
 def get_user_info(current_user: dict = Depends(get_current_user)):
     return UserResponse(
@@ -151,6 +128,39 @@ def get_user_info(current_user: dict = Depends(get_current_user)):
         name=current_user["name"], 
         email=current_user["email"]
     )
+
+# --- Todo Routes ---
+
+@app.get("/todos", response_model=List[TodoResponse])
+def get_todos(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return db.query(Todo).filter(Todo.user_id == current_user["id"]).all()
+
+@app.post("/todos", response_model=TodoResponse)
+def create_todo(todo: TodoCreate, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    new_todo = Todo(
+        title=todo.title,
+        description=todo.description,
+        priority=todo.priority,
+        user_id=current_user["id"],
+        completed=False,
+        created_at=datetime.utcnow()  # Date fix
+    )
+    db.add(new_todo)
+    db.commit()
+    db.refresh(new_todo)
+    return new_todo
+
+# --- DELETE ROUTE (ADDED) ---
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    todo = db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == current_user["id"]).first()
+    
+    if not todo:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db.delete(todo)
+    db.commit()
+    return {"message": "Task deleted successfully"}
 
 @app.get("/health")
 def health_check():
