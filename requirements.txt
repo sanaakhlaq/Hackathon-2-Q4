@@ -1,9 +1,29 @@
-fastapi>=0.104.1
-uvicorn>=0.24.0
-pydantic>=2.5.0
-sqlalchemy>=2.0.0
-psycopg2-binary>=2.9.0
-python-jose[cryptography]>=3.3.0
-bcrypt>=4.0.0
-python-multipart>=0.0.6
-python-dotenv>=1.0.0
+# Essential packages for database connection
+psycopg2-binary>=2.8.6
+sqlalchemy>=1.4.0
+asyncpg>=0.25.0  # For async PostgreSQL connections
+
+# Environment variable management
+python-dotenv>=0.19.0
+
+# Common web frameworks (choose based on your needs)
+flask>=2.0.0
+fastapi>=0.70.0
+uvicorn>=0.15.0
+gradio>=3.0.0  # Common for Hugging Face Spaces
+
+# Data processing libraries
+pandas>=1.3.0
+numpy>=1.21.0
+
+# HTTP requests
+requests>=2.25.0
+httpx>=0.23.0
+
+# Async support
+aiohttp>=3.8.0
+asyncio
+
+# Testing and utilities
+pytest>=6.2.0
+pydantic>=1.8.0
