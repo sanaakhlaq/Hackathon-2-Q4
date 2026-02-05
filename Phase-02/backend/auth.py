@@ -9,8 +9,7 @@ import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlmodel import Session, select
 
 # Use jose.jwt instead of jwt
 from jose import jwt
@@ -19,7 +18,7 @@ from jose import jwt
 load_dotenv()
 
 # Import database configuration and models with session management
-from .models import User, db_manager, get_db_connection
+from models import User, get_db
 
 # Get secret key from environment
 SECRET_KEY = os.getenv('BETTER_AUTH_SECRET')
@@ -106,11 +105,11 @@ def signup_user(name: str, email: str, password: str) -> Optional[dict]:
         raise AuthException("Password must be at least 8 characters long")
 
     # Get database session using the optimized connection pool from models.py
-    engine = get_db_connection()
-
-    with Session(engine) as session:
+    from models import get_db
+    for db in get_db():  # Using generator to get session
         # Check if user already exists
-        existing_user = session.query(User).filter(User.email == email.lower()).first()
+        statement = select(User).where(User.email == email.lower())
+        existing_user = db.exec(statement).first()
         if existing_user:
             raise AuthException("User with this email already exists")
 
@@ -124,9 +123,9 @@ def signup_user(name: str, email: str, password: str) -> Optional[dict]:
             hashed_password=hashed_password  # Store the hashed password
         )
 
-        session.add(db_user)
-        session.commit()
-        session.refresh(db_user)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
 
         return {
             "id": db_user.id,
@@ -144,11 +143,11 @@ def login_user(email: str, password: str) -> Optional[str]:
         raise AuthException("Invalid email format")
 
     # Get database session using the optimized connection pool from models.py
-    engine = get_db_connection()
-
-    with Session(engine) as session:
+    from models import get_db
+    for db in get_db():  # Using generator to get session
         # Find user by email
-        user = session.query(User).filter(User.email == email.lower()).first()
+        statement = select(User).where(User.email == email.lower())
+        user = db.exec(statement).first()
 
         if not user:
             raise AuthException("Invalid credentials")
@@ -167,91 +166,6 @@ def login_user(email: str, password: str) -> Optional[str]:
         return access_token
 
 
-def generate_reset_token(email: str) -> Optional[str]:
-    """
-    Generate a password reset token
-    """
-    # Validate email format
-    if not validate_email(email):
-        raise AuthException("Invalid email format")
-
-    # Create a special reset token with shorter expiration
-    reset_data = {
-        "sub": email.lower(),
-        "type": "reset"
-    }
-
-    # Shorter expiration for reset tokens (1 hour)
-    reset_token = create_access_token(
-        data=reset_data,
-        expires_delta=timedelta(hours=1)
-    )
-
-    return reset_token
-
-
-def reset_password(reset_token: str, new_password: str) -> bool:
-    """
-    Reset user password using the reset token
-    """
-    # Validate new password
-    if not validate_password(new_password):
-        raise AuthException("New password must be at least 8 characters long")
-
-    try:
-        # Decode the reset token
-        payload = verify_token(reset_token)
-
-        # Check if this is a reset token
-        if payload.get("type") != "reset":
-            raise AuthException("Invalid reset token")
-
-        # Extract email from token
-        email = payload.get("sub")
-
-        # Hash the new password
-        hashed_new_password = hash_password(new_password)
-
-        # In a real implementation, update the user's password in the database
-        # Since our User model doesn't have a password field, we'll simulate
-        print(f"Password reset initiated for {email}")
-        return True
-
-    except AuthException:
-        raise
-    except Exception:
-        raise AuthException("Invalid or expired reset token")
-
-
-def authenticate_user(email: str, password: str) -> Optional[dict]:
-    """
-    Authenticate user credentials using Neon-optimized session management and return user info if valid
-    """
-    # Validate email format
-    if not validate_email(email):
-        raise AuthException("Invalid email format")
-
-    # Get database session using the optimized connection pool from models.py
-    engine = get_db_connection()
-
-    with Session(engine) as session:
-        # Find user by email
-        user = session.query(User).filter(User.email == email.lower()).first()
-
-        if not user:
-            raise AuthException("Invalid credentials")
-
-        # Verify the provided password against the stored hash
-        if not verify_password(password, user.hashed_password):
-            raise AuthException("Invalid credentials")
-
-        return {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email
-        }
-
-
 def get_user_by_email(email: str) -> Optional[dict]:
     """
     Retrieve user by email using Neon-optimized session management
@@ -261,10 +175,10 @@ def get_user_by_email(email: str) -> Optional[dict]:
         raise AuthException("Invalid email format")
 
     # Get database session using the optimized connection pool from models.py
-    engine = get_db_connection()
-
-    with Session(engine) as session:
-        user = session.query(User).filter(User.email == email.lower()).first()
+    from models import get_db
+    for db in get_db():  # Using generator to get session
+        statement = select(User).where(User.email == email.lower())
+        user = db.exec(statement).first()
 
         if not user:
             return None
@@ -275,35 +189,3 @@ def get_user_by_email(email: str) -> Optional[dict]:
             "email": user.email,
             "created_at": user.created_at
         }
-
-
-# Example usage functions
-def example_signup():
-    """
-    Example of how to use the signup function
-    """
-    try:
-        user = signup_user("John Doe", "john.doe@example.com", "securepassword123")
-        print(f"Signed up user: {user}")
-    except AuthException as e:
-        print(f"Signup failed: {e}")
-
-
-def example_login():
-    """
-    Example of how to use the login function
-    """
-    try:
-        token = login_user("john.doe@example.com", "securepassword123")
-        print(f"Login successful, token: {token[:50]}...")  # Show partial token for security
-    except AuthException as e:
-        print(f"Login failed: {e}")
-
-
-if __name__ == "__main__":
-    print("Authentication module loaded")
-    print(f"Secret key configured: {'Yes' if SECRET_KEY else 'No'}")
-
-    # Run examples
-    example_signup()
-    example_login()

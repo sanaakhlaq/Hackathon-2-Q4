@@ -16,6 +16,13 @@ A modern, full-featured todo application featuring JWT authentication, priority-
 - **Task Priority Levels**: High, Medium, and Low priority classifications
 - **Enhanced Security**: Token-based authentication and authorization
 
+### Phase 3: Agentic Todo Chatbot
+- **AI-Powered Assistant**: Natural language interaction with your todo list
+- **Backend Framework**: FastAPI with advanced routing and async capabilities
+- **Database**: SQLModel for elegant ORM operations
+- **AI Integration**: Llama-3 powered agent for intelligent task management
+- **Frontend Interface**: Streamlit-based chat interface for seamless interaction
+
 ## Tech Stack
 
 - **Backend**: [FastAPI](https://fastapi.tiangolo.com/) - Modern, fast (high-performance) web framework for building APIs with Python 3.7+

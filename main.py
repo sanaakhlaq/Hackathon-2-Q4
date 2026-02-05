@@ -1,45 +1,103 @@
-import os
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
+import uvicorn
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
-load_dotenv()
+# Import your database initialization function here
+# from your_database_module import init_db
 
-def get_database_url():
-    """Get database URL from environment variables."""
-    database_url = os.getenv('DATABASE_URL')
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan event handler for FastAPI application.
+    Runs startup and shutdown events.
+    """
+    logger.info("Starting up...")
+    # Initialize database connection
+    # await init_db()
     
-    if not database_url:
-        raise ValueError("DATABASE_URL environment variable is not set")
+    yield  # Application runs here
     
-    logger.info("Database URL loaded from environment variables")
-    return database_url
+    # Cleanup on shutdown
+    logger.info("Shutting down...")
 
-# Get the database URL from environment variables
-DATABASE_URL = get_database_url()
 
-# Example: Create a database engine (uncomment if you're using SQLAlchemy)
-# engine = create_engine(DATABASE_URL)
+# Initialize FastAPI app with lifespan
+app = FastAPI(
+    title="Secure API",
+    description="A secure API with authentication",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
-# Your application code here
-# Example usage of DATABASE_URL:
-print(f"Database URL: {DATABASE_URL}")
+# Add CORS middleware properly
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# If you're building a Gradio app (common for Hugging Face Spaces)
+# HTTP Bearer token for authentication
+security = HTTPBearer()
+
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Secure API!"}
+
+
+# Example Signup route
+@app.post("/signup")
+async def signup(username: str, password: str, email: str = None):
+    """
+    User signup endpoint
+    """
+    # Add your signup logic here
+    return {
+        "message": "User registered successfully",
+        "username": username,
+        "email": email
+    }
+
+
+# Example Login route
+@app.post("/login")
+async def login(username: str, password: str):
+    """
+    User login endpoint
+    """
+    # Add your login logic here
+    # This is just a placeholder implementation
+    if username and password:
+        return {
+            "message": "Login successful",
+            "username": username,
+            "access_token": f"fake_token_for_{username}"
+        }
+    else:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
+
 if __name__ == "__main__":
-    # Import and run your main application
-    # For example, if using Gradio:
-    # import gradio as gr
-    # gr.Interface(...).launch(server_port=7860)
-    
-    # Or if it's a Flask/FastAPI app:
-    # from your_app import app
-    # app.run(host='0.0.0.0', port=7860)
-    
-    logger.info("Application running on port 7860")
-    logger.info(f"Using database: {DATABASE_URL.split('@')[0] if '@' in DATABASE_URL else DATABASE_URL}")
+    uvicorn.run(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
