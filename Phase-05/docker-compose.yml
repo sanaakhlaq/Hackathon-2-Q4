@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  dapr-sidecar:
+    image: daprio/daprd:latest
+    depends_on:
+      - kafka
+    command: ["daprd"]
+    ports:
+      - "3500:3500"
+    environment:
+      DAPR_HTTP_PORT: 3500
+      DAPR_GRPC_PORT: 50001
+      DAPR_METRICS_PORT: 9090
+      DAPR_CONFIG: /config/config.yaml
+    volumes:
+      - ./dapr-config:/config
