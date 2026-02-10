@@ -6,6 +6,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
     ports:
       - "2181:2181"
 
@@ -21,6 +23,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    networks:
+      - app-network
 
   ai-app:
     build: .
@@ -33,6 +37,8 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
       - .:/app
+    networks:
+      - app-network
 
   dapr-sidecar:
     image: daprio/daprd:latest
@@ -48,3 +54,33 @@ services:
       DAPR_CONFIG: /config/config.yaml
     volumes:
       - ./dapr-config:/config
+    networks:
+      - app-network
+
+  kafka-test-producer:
+    build: .
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    command: ["python", "producer.py"]
+    networks:
+      - app-network
+    volumes:
+      - .:/app
+
+  kafka-test-consumer:
+    build: .
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    command: ["python", "consumer.py"]
+    networks:
+      - app-network
+    volumes:
+      - .:/app
+
+networks:
+  app-network:
+    driver: bridge

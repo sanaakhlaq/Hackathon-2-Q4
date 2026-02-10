@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy everything to the container
 COPY . .
 
-EXPOSE 8501
+EXPOSE 8000
 
-# Run the Streamlit application
-CMD ["streamlit", "run", "frontend.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+# Run the FastAPI application
+CMD ["python", "main.py"]
